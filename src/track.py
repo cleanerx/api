@@ -56,8 +56,6 @@ class Track():
 
     def __init__(self, db):
         self._db  = db
-        self._cur = db.getCursor()
-
         try:
             self._dir = cherrypy.config.get('track.dir', None)
         except ConfigParser.NoOptionError as e:
@@ -74,12 +72,14 @@ class Track():
     # ----------------------------------------------------------------------------------------------
 
     def getNewId(self, username):
-        self._cur.execute(
+        cursor = self._db.getCursor()
+        cursor.execute(
             '''
             SELECT nextval('user_tracks_track_id_seq')
             '''
         )
-        record = self._cur.fetchone()
+        
+        record = cursor.fetchone()
         self._db.commit()
         if record == None:
             raise Error(201, 'Unable to fetch new track id.', 'TRACK')
